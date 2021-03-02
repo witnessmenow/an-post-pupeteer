@@ -1,0 +1,22 @@
+{
+  "name": "an-post-pupeteer",
+  "version": "0.0.1",
+  "description": "A Pupeteer script interacting with An Post's website to automate orders.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/witnessmenow/an-post-pupeteer.git"
+  },
+  "author": "Brian Lough",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/witnessmenow/an-post-pupeteer/issues"
+  },
+  "homepage": "https://github.com/witnessmenow/an-post-pupeteer#readme",
+  "dependencies": {
+    "puppeteer": "^7.1.0"
+  }
+}
