@@ -4,7 +4,7 @@ A Pupeteer script interacting with An Post's website to automate orders.
 
 I have also added a Cheerio script for parsing the email that An Post send, so you can extract the Tracking number programmatically
 
-This is a serious work in progress, it's being held together with sticky tape, but the basics of my use case are working. At the moment it's really only intended for people with a coding background.
+This is a serious work in progress, it's being held together with sticky tape, but the basics of my use case are working.
 
 This is provided with no warranty!
 
@@ -15,13 +15,15 @@ This is provided with no warranty!
 - It is not battle hardened at all! It has worked for my 20 orders but who know what future orders will throw up
 - It currently only supports two different types of items in the item description section, this could be extended relatively easily.
 
-### Installation
+## Installation
+
+Note: At the moment it's really only intended for people with a coding background.
 
 - Download and install [NodeJS](https://nodejs.org/en/download/)
 - Download this code and navigate to folder on the command line.
 - Type 'npm install'
 
-### Usage
+## Usage
 
 #### Web Automation
 
