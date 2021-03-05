@@ -8,6 +8,8 @@ const waitBetweenPages = 1000;// Going too fast seems to cause session expiry pr
 const type15201Countries = ['US', 'CA', 'AU'];
 const type15078Countries = ['CH', 'RU'];
 
+let cookieHandled = false;
+
 async function launchBrowser() {
   const browser = await puppeteer.launch({headless: false});
   return browser;
@@ -24,12 +26,16 @@ async function addLabel(browser, data){
   // PAGE 1
   // --------------------------------------------
 
-  try {
-    await page.waitForSelector('#onetrust-accept-btn-handler', { timeout: 2000 });
-    console.log('Cookie found');
-    await page.click('#onetrust-accept-btn-handler');
-  } catch {
-    console.log('Cookie not found');
+  if(!cookieHandled)
+  {
+    try {
+      await page.waitForSelector('#onetrust-accept-btn-handler', { timeout: 8000 });
+      console.log('Cookie found');
+      await page.click('#onetrust-accept-btn-handler');
+      cookieHandled = true;
+    } catch {
+      console.log('Cookie not found');
+    }
   }
 
   await page.waitForSelector('input#large', { timeout: 5000 });
@@ -43,7 +49,7 @@ async function addLabel(browser, data){
       throw new Error('Unsupported Package Type: ' + data.Type);
   }
 
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(1000);
   // Select Destination Country
   await page.select(('select#destination'), data.Destination); 
 
@@ -246,9 +252,9 @@ async function addLabel(browser, data){
 
   if(!isSpecial)
   {
-    let value = parseInt(data.Quantity0) * parseInt(data.Value0);
+    let value = parseInt(data.Value0);
     if(data.Quantity1){
-      value += parseInt(data.Quantity1) * parseInt(data.Value1);
+      value += parseInt(data.Value1);
     }
 
     console.log(value);
@@ -282,8 +288,8 @@ csvData = [];
 
 console.log("Launching Browser");
 launchBrowser().then( brow => {
-  //fs.createReadStream('../AnPostPuppet/data.csv')
-  fs.createReadStream('data.csv')
+  fs.createReadStream('../AnPostPuppet/data.csv')
+  //fs.createReadStream('data.csv')
   .pipe(csv())
   .on('data', (data) => csvData.push(data))
   .on('end', () => {
