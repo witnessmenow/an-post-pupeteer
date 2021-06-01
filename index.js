@@ -5,13 +5,49 @@ const fs = require('fs')
 const waitBetweenPages = 1000;// Going too fast seems to cause session expiry problems
 
 // These are not an exhaustive list, just the ones I've hit so far.
-const type15201Countries = ['US', 'CA', 'AU'];
-const type15078Countries = ['CH', 'RU'];
+// https://postal-codes.net/country-codes/
+const countryTypes = [
+  ['US', 'CA', 'SG', 'BR'], //type 1
+  ['CH', 'RU', 'NO'],
+  ['GB'],
+  ['AU', 'NZ']
+]
+
+const serviceCat = [
+  {
+    '100': '170912', // Type 0 - EU
+    '250': '170915',
+    '500': '170918',
+  },
+  {
+    '100': '170594', // Type 1 - US
+    '250': '170597',
+    '500': '170600',
+  },
+  {
+    '100': '171071', // Type 2 - Non EU (switzerland)
+    '250': '171074',
+    '500': '171077'
+  },
+  {
+    '100': '170997', // Type 3 - UK
+    '250': '171000',
+    '500': '171003'
+  },
+  {
+    '100': '172112', // Type 4 - Australia
+    '250': '172115',
+    '500': '172153'
+  },
+]
 
 let cookieHandled = false;
 
 async function launchBrowser() {
-  const browser = await puppeteer.launch({headless: false});
+  const browser = await puppeteer.launch({headless: false,
+    args: [
+      '--window-size=1920,1080'
+    ]});
   return browser;
 }
 
@@ -31,10 +67,12 @@ async function addLabel(browser, data){
     try {
       await page.waitForSelector('#onetrust-accept-btn-handler', { timeout: 8000 });
       console.log('Cookie found');
+      await page.waitForTimeout(2000);
       await page.click('#onetrust-accept-btn-handler');
       cookieHandled = true;
-    } catch {
+    } catch (err){
       console.log('Cookie not found');
+      console.log(err.message);
     }
   }
 
@@ -49,7 +87,7 @@ async function addLabel(browser, data){
       throw new Error('Unsupported Package Type: ' + data.Type);
   }
 
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(2000);
   // Select Destination Country
   await page.select(('select#destination'), data.Destination); 
 
@@ -94,7 +132,8 @@ async function addLabel(browser, data){
 
   await page.waitForTimeout(100);
   // Submit Page 2
-  await page.$eval(('button.sc-kpOJdX'), element => element.click()); 
+  //await page.$eval(('button.sc-kpOJdX'), element => element.click());
+  await page.$eval(('button.sc-kgoBCf'), element => element.click()); 
 
   // --------------------------------------------
   // PAGE 3 - Postage Option
@@ -106,13 +145,21 @@ async function addLabel(browser, data){
   //Post Service
   switch(data.Service){
     case 'Registered':
-      if(type15201Countries.indexOf(data.Destination)>= 0){
-        await page.$eval(('input[id=\'15201\']'), element => element.click());
-      } else if (type15078Countries.indexOf(data.Destination)>= 0){
-        await page.$eval(('input[id=\'15078\']'), element => element.click());
+
+      let countryType = countryTypes.findIndex(type => {
+        return type.indexOf(data.Destination)>= 0;
+      });
+      countryType += 1; //if no type its probably EU, which is index 0
+
+      let service = serviceCat[countryType][data.WeightCat]
+      if(service){
+        await page.$eval(('input[id=\''+ service +'\']'), element => element.click());
       } else {
-        await page.$eval(('input[id=\'14955\']'), element => element.click()); 
+        throw new Error('Unsupported serviceCat for country and weight.');
       }
+
+
+
       break;
     default:
       throw new Error('Unsupported Service Type: ' + data.Service);
@@ -127,7 +174,6 @@ async function addLabel(browser, data){
 
   await page.waitForTimeout(waitBetweenPages);
   await page.waitForSelector('input#recipientFirstname', { timeout: 5000 });
-  
   await page.focus('input#recipientFirstname')
   await page.keyboard.type(data.FirstName)
   await page.focus('input#recipientLastname')
@@ -172,8 +218,9 @@ async function addLabel(browser, data){
   // Type of Contents
 
   //Not sure what is special yet... maybe not EU?
-  let isSpecial = type15201Countries.indexOf(data.Destination)>= 0;
-  isSpecial = isSpecial || type15078Countries.indexOf(data.Destination)>= 0;
+  let isSpecial = countryTypes.some(type => {
+    return type.indexOf(data.Destination)>= 0;
+  });
 
   if(isSpecial){
     switch(data.ContentCategory){

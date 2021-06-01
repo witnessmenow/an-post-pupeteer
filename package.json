@@ -19,6 +19,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.5",
     "csv-parser": "^3.0.0",
+    "csv-writer": "^1.6.0",
     "mailparser-mit": "^1.0.0",
     "puppeteer": "^7.1.0"
   }
