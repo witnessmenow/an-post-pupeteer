@@ -156,5 +156,5 @@ mailparser.on("end", function(mail_object){
 // - Beside the forward button there is three dots
 // click and select "download message"
 //fs.createReadStream('test.eml').pipe(mailparser);
-fs.createReadStream('../AnPostPuppet/0106.eml').pipe(mailparser);
+fs.createReadStream('../AnPostPuppet/1609.eml').pipe(mailparser);
 

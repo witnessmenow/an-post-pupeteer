@@ -2,7 +2,9 @@ const puppeteer = require('puppeteer');
 const csv = require('csv-parser')
 const fs = require('fs')
 
-const waitBetweenPages = 1000;// Going too fast seems to cause session expiry problems
+const waitBetweenPages = 5000;// Going too fast seems to cause session expiry problems
+
+const timeOutValue = 20000;
 
 // These are not an exhaustive list, just the ones I've hit so far.
 // https://postal-codes.net/country-codes/
@@ -65,7 +67,7 @@ async function addLabel(browser, data){
   if(!cookieHandled)
   {
     try {
-      await page.waitForSelector('#onetrust-accept-btn-handler', { timeout: 8000 });
+      await page.waitForSelector('#onetrust-accept-btn-handler', { timeout: timeOutValue });
       console.log('Cookie found');
       await page.waitForTimeout(2000);
       await page.click('#onetrust-accept-btn-handler');
@@ -76,7 +78,7 @@ async function addLabel(browser, data){
     }
   }
 
-  await page.waitForSelector('input#large', { timeout: 5000 });
+  await page.waitForSelector('input#large', { timeout: timeOutValue });
 
   // Select Package Type
   switch(data.Type){
@@ -87,7 +89,7 @@ async function addLabel(browser, data){
       throw new Error('Unsupported Package Type: ' + data.Type);
   }
 
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(5000);
   // Select Destination Country
   await page.select(('select#destination'), data.Destination); 
 
@@ -102,7 +104,7 @@ async function addLabel(browser, data){
 
   await page.waitForTimeout(waitBetweenPages);
 
-  await page.waitForSelector('input#itemWeight-0', { timeout: 5000 });
+  await page.waitForSelector('input#itemWeight-0', { timeout: timeOutValue });
 
   // This is probably large letter specific...
   switch(data.WeightCat){
@@ -141,7 +143,7 @@ async function addLabel(browser, data){
 
   //await page.waitForTimeout(2000);
   await page.waitForTimeout(waitBetweenPages);
-  await page.waitForSelector('div.price-header', { timeout: 5000 });
+  await page.waitForSelector('div.price-header', { timeout: timeOutValue });
   //Post Service
   switch(data.Service){
     case 'Registered':
@@ -173,7 +175,7 @@ async function addLabel(browser, data){
   // --------------------------------------------
 
   await page.waitForTimeout(waitBetweenPages);
-  await page.waitForSelector('input#recipientFirstname', { timeout: 5000 });
+  await page.waitForSelector('input#recipientFirstname', { timeout: timeOutValue });
   await page.focus('input#recipientFirstname')
   await page.keyboard.type(data.FirstName)
   await page.focus('input#recipientLastname')
@@ -214,7 +216,7 @@ async function addLabel(browser, data){
   // --------------------------------------------
 
   await page.waitForTimeout(waitBetweenPages);
-  await page.waitForSelector('input#description0', { timeout: 5000 });
+  await page.waitForSelector('input#description0', { timeout: timeOutValue });
   // Type of Contents
 
   //Not sure what is special yet... maybe not EU?
@@ -225,7 +227,8 @@ async function addLabel(browser, data){
   if(isSpecial){
     switch(data.ContentCategory){
       case 'Sale':
-        await page.select(('select#customsCategoryofitems'), "1");  
+        await page.select(('select#customsCategoryofitems'), "1"); 
+        await page.waitForTimeout(1000); 
         break;
       default:
         throw new Error('Unsupported ContentCategory: ' + data.ContentCategory);
