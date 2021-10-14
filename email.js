@@ -14,30 +14,30 @@ const countryMap = {
     'United Kingdom': 'Great Britain'
 }
 
-function checkCountry(elementCountry, trackCountry){
+function checkCountry(elementCountry, trackCountry) {
     let newElemCountry = elementCountry;
 
-    if(countryMap.hasOwnProperty(elementCountry)){
+    if (countryMap.hasOwnProperty(elementCountry)) {
         newElemCountry = countryMap[elementCountry];
     }
 
     return newElemCountry == trackCountry;
 }
 
-function mergeData(csvData, trackingData){
+function mergeData(csvData, trackingData) {
     const mergedData = [];
-    if(csvData.length == trackingData.length){
+    if (csvData.length == trackingData.length) {
         csvData.forEach((element, index) => {
             const trackingDataRef = trackingData.length - index - 1;
             let value = parseFloat(element.Value0);
-            if(element.Value1){
+            if (element.Value1) {
                 value += parseFloat(element.Value1);
             }
 
             const valueMatches = parseFloat(trackingData[trackingDataRef].value.replace('€', '')) == value;
             const countriesMatches = checkCountry(element.Country, trackingData[trackingDataRef].destination);
 
-            if(valueMatches && countriesMatches){
+            if (valueMatches && countriesMatches) {
                 mergedData.push(Object.assign(element, trackingData[trackingDataRef]));
             } else {
                 console.log('ERROR, they did not match up, ' + element.LastName);
@@ -51,8 +51,8 @@ function mergeData(csvData, trackingData){
     return mergedData;
     //console.log(csvData);
 }
- 
-mailparser.on("end", function(mail_object){
+
+mailparser.on("end", function (mail_object) {
 
     // const barcodeFolder = 'C:\\Users\\Brian\\Documents\\Code\\AnPostPuppet\\barcodeimages\\'
     // console.log("attachments");
@@ -67,7 +67,7 @@ mailparser.on("end", function(mail_object){
 
 
     //let tableRowsElements = [];
-    let trackingData = $('span').filter(function() {
+    let trackingData = $('span').filter(function () {
         return $(this).text().trim() === 'Tracking Number:';
     }).toArray().map(elem => {
         let trackValueTr = elem.parent.parent;
@@ -110,45 +110,46 @@ mailparser.on("end", function(mail_object){
 
     let csvData = [];
     fs.createReadStream('../AnPostPuppet/data.csv')
-    .pipe(csv())
-    .on('data', (data) => csvData.push(data))
-    .on('end', () => {
-        const csvFormat = mergeData(csvData, trackingData);
-        const csvWriter = createCsvWriter({
-            path: '../AnPostPuppet/track-data.csv',
-            header: [
-                {id: 'OrderNumber', title: 'OrderNumber'},
-                {id: 'trackingNumber', title: 'trackingNumber'},
-                {id: 'Type', title: 'Type'},
-                {id: 'Destination', title: 'Destination'},
-                {id: 'Country', title: 'Country'},
-                {id: 'WeightCat', title: 'WeightCat'},
-                {id: 'Contents', title: 'Contents'},
-                {id: 'Service', title: 'Service'},
-                {id: 'FirstName', title: 'FirstName'},
-                {id: 'LastName', title: 'LastName'},
-                {id: 'CompanyName', title: 'CompanyName'},
-                {id: 'Email', title: 'Email'},
-                {id: 'Phone', title: 'Phone'},
-                {id: 'AddressLine1', title: 'AddressLine1'},
-                {id: 'AddressLine2', title: 'AddressLine2'},
-                {id: 'CityState', title: 'CityState'},
-                {id: 'Postcode', title: 'Postcode'},
-                {id: 'ContentCategory', title: 'ContentCategory'},
-                {id: 'ItemDescription0', title: 'ItemDescription0'},
-                {id: 'Quantity0', title: 'Quantity0'},
-                {id: 'Value0', title: 'Value0'},
-                {id: 'Weight0', title: 'Weight0'},
-                {id: 'ItemDescription1', title: 'ItemDescription1'},
-                {id: 'Quantity1', title: 'Quantity1'},
-                {id: 'Value1', title: 'Value1'},
-                {id: 'Weight1', title: 'Weight1'},
-                {id: 'barcodeId', title: 'barcodeId'}
-            ]
+        .pipe(csv())
+        .on('data', (data) => csvData.push(data))
+        .on('end', () => {
+            const csvFormat = mergeData(csvData, trackingData);
+            const csvWriter = createCsvWriter({
+                path: '../AnPostPuppet/track-data.csv',
+                header: [
+                    { id: 'OrderNumber', title: 'OrderNumber' },
+                    { id: 'trackingNumber', title: 'TrackingNumber' },
+                    { id: 'Type', title: 'Type' },
+                    { id: 'Destination', title: 'Destination' },
+                    { id: 'Country', title: 'Country' },
+                    { id: 'WeightCat', title: 'WeightCat' },
+                    { id: 'Contents', title: 'Contents' },
+                    { id: 'Service', title: 'Service' },
+                    { id: 'FirstName', title: 'FirstName' },
+                    { id: 'LastName', title: 'LastName' },
+                    { id: 'CompanyName', title: 'CompanyName' },
+                    { id: 'Email', title: 'Email' },
+                    { id: 'Phone', title: 'Phone' },
+                    { id: 'AddressLine1', title: 'AddressLine1' },
+                    { id: 'AddressLine2', title: 'AddressLine2' },
+                    { id: 'CityState', title: 'CityState' },
+                    { id: 'Postcode', title: 'Postcode' },
+                    { id: 'ContentCategory', title: 'ContentCategory' },
+                    { id: 'ItemDescription0', title: 'ItemDescription0' },
+                    { id: 'Quantity0', title: 'Quantity0' },
+                    { id: 'Value0', title: 'Value0' },
+                    { id: 'Weight0', title: 'Weight0' },
+                    { id: 'ItemDescription1', title: 'ItemDescription1' },
+                    { id: 'Quantity1', title: 'Quantity1' },
+                    { id: 'Value1', title: 'Value1' },
+                    { id: 'Weight1', title: 'Weight1' },
+                    { id: 'barcodeId', title: 'barcodeId' },
+                    { id: 'Sku', title: 'Sku' }
+                ]
+            });
+            return csvWriter.writeRecords(csvFormat)
+            //console.log('Added All');
         });
-        return csvWriter.writeRecords(csvFormat)
-        //console.log('Added All');
-    });
 });
 
 
@@ -156,5 +157,5 @@ mailparser.on("end", function(mail_object){
 // - Beside the forward button there is three dots
 // click and select "download message"
 //fs.createReadStream('test.eml').pipe(mailparser);
-fs.createReadStream('../AnPostPuppet/1609.eml').pipe(mailparser);
+fs.createReadStream('../AnPostPuppet/1410.eml').pipe(mailparser);
 

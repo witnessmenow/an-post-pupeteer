@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/witnessmenow/an-post-pupeteer#readme",
   "dependencies": {
+    "awesome-phonenumber": "^2.63.0",
     "cheerio": "^1.0.0-rc.5",
     "csv-parser": "^3.0.0",
     "csv-writer": "^1.6.0",
